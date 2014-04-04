@@ -45,6 +45,14 @@ func (z *ZipFile) AddEntry(path, name string) error {
 	if err != nil {
 		return err
 	}
+	
+	if fi.IsDir() {
+		if len(path) > 0 {
+			path = path + "/"
+		} else {
+			path = "./"
+		}
+	}
 
 	fh.Name = path
 
@@ -79,6 +87,8 @@ func (z *ZipFile) AddDirectoryN(path string, names ...string) error {
 }
 
 func (z *ZipFile) AddDirectory(path, dirName string) error {
+	z.AddEntry(path, dirName)
+	
 	files, err := ioutil.ReadDir(dirName)
 	if err != nil {
 		return err
@@ -90,7 +100,6 @@ func (z *ZipFile) AddDirectory(path, dirName string) error {
 
 		err = nil
 		if file.IsDir() {
-			z.AddEntry(path, dirName)
 			err = z.AddDirectory(zipPath, localPath)
 		} else {
 			err = z.AddEntry(zipPath, localPath)
